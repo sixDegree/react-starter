@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Calendar</title>
+	<style type="text/css">
+		.svgContainer{
+			max-width:250px;
+			max-height:300px;
+			width:100%;
+			height:100%;
+		}
+		.textSpan:hover{
+			cursor:pointer;
+		}
+		#test:hover{
+			fill:#eee;
+		}
+		
+		g.cell{
+			cursor:pointer;
+		}
+
+		g.cell rect{
+			fill:#fff;
+		}
+		
+		g.cell:hover rect{
+			fill:#eee;
+		}
+
+		.hand{
+			cursor:pointer;
+		}
+		
+	</style>	
+</head>
+<body>
+
+	<div id="app" class="svgContainer"></div>
+
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+		var Calendar=React.createClass({
+			getDefaultProps:function(){
+				return {
+				}
+			},
+			getInitialState:function(){
+				return {
+					year:this.props.year,
+					month:this.props.month
+				}
+			},
+			render:function(){
+				this.getDay(this.state.year,this.state.month);
+				return (
+					<svg  id="dynamicCalendar" viewBox="0 0 220 250">
+						<g id="framePanel">
+							<rect x="0" y="0" width="220" height="250" 
+							fill="#fff" stroke="#555" strokeWidth="2"/>
+							<text x="70" y="30" fontSize="20">{this.state.year+"."+this.state.month}</text>
+							<polygon className="hand" points="5,20 10,15 10,25" onClick={this.subMonth}/>
+							<polygon className="hand" points="5,20 10,15 10,25" 
+								transform="rotate(180,5,20) translate(-205,0) " 
+								onClick={this.addMonth}/>
+
+							<text x="7" y="60">
+								<tspan>Sun</tspan>
+								<tspan x="37">Mon</tspan>
+								<tspan x="67">Tue</tspan>
+								<tspan x="97">Wed</tspan>
+								<tspan x="127">Thu</tspan>
+								<tspan x="157">Fri</tspan>
+								<tspan x="187">Sat</tspan>
+							</text>
+							<line x1="5" y1="65" x2="215" y2="65" stroke="#333" strokeWidth="2"/>
+						</g>
+						<defs>
+							<rect id="cell" x="5" y="35" width="30" height="30" />
+							<text id="dayTxt" x="10" y="60">18</text>		
+							<g id="cell-day">
+								<use xlinkHref="#cell" x="0" y="0"/>
+								<use xlinkHref="#dayTxt" x="0" y="0"/>
+							</g>
+						</defs>
+						<g id="cellsPanel">
+							{this.renderCellDays()}
+						</g>
+					</svg>
+
+				)
+			},
+			addMonth:function(){
+				//this.setState({month:this.state.month+1});
+				this.state.month++;
+				if(this.state.month==13){
+					this.state.month=1;
+					this.state.year++;
+				}
+				this.forceUpdate();	
+			},
+			subMonth:function(){
+				//this.setState({month:this.state.month-1});
+				this.state.month--;
+				if(this.state.month==0){
+					this.state.month=12;
+					this.state.year--;
+				}
+				this.forceUpdate();	
+			},
+			renderCells:function(){
+				var cells=[];
+				var day=1;
+				for(var j=0;j<6;j++){
+					for(var i=0;i<7;i++){
+						/*cells.push(<use key={i+"."+j} xlinkHref="#cell-day" x={i*30} y={30+j*30}/>);*/
+						cells.push(this.createCell(j,i,day))
+						day++;
+					}
+				}
+				return cells;
+			},
+			createCell:function(row,col,txt){
+				//console.log("row:"+row+",col:"+col+",day:"+txt);
+				return (
+					<g key={col+"."+row} 
+						transform={"translate("+(col*30)+","+(30+row*30)+")"} 
+						className="cell"
+						onClick={this.cellClick.bind(this,txt)}
+					>
+						<rect x="5" y="35" width="30" height="30" />
+						<text x="13" y="60">{txt}</text>
+					</g>
+				);
+			},
+			cellClick:function(txt){
+				alert(txt+" Cell Clicked!");
+			},
+			renderCellDays:function(){
+				var cells=[];
+				//var cal=this.getCalendar();
+				var cal=this.getCalendar(this.state.year,this.state.month);
+				for(var i=0;i<cal.indent;i++){
+					cells.push(this.createCell(0,i,""));
+				}
+				for(var i=1;i<=cal.monthDays;i++){
+					var row=parseInt((i+cal.indent-1)/7);
+					var col=parseInt((i+cal.indent-1)%7);
+					cells.push(this.createCell(row,col,i));
+				}
+
+				return cells;
+			},
+			getCalendar:function(year,month){
+				var now=new Date();
+				if(year)
+					now.setYear(year);
+				else
+					year=now.getFullYear();
+				if(month){
+					month=month-1;
+					now.setMonth(month);
+				}
+				else
+					month=now.getMonth();
+
+				var currentDay=now.getDate();
+				now.setDate(1);
+				var week=now.getDay();	//获取当前星期X(0-6,0代表星期天)
+				var monthDays=this.daysInMonth(year,month);
+				return {indent:week,currentDay:currentDay,monthDays:monthDays};
+			},
+			getDay:function(year,month){
+				console.log(year+","+month);
+				var now=new Date();
+				if(year)
+					now.setYear(parseInt(year));
+				else
+					year=now.getFullYear();
+				if(month){
+					month=parseInt(month)-1;
+					now.setMonth(month);
+				}
+				else
+					month=now.getMonth();
+
+				var currentDay=now.getDate();
+				now.setDate(1);
+				var week=now.getDay();	//获取当前星期X(0-6,0代表星期天)
+				var monthDays=this.daysInMonth(year,month);
+
+				var indent=week;
+				var str="";
+				for(var i=0;i<indent;i++){
+					str+="\t";
+				}
+				for(var i=1;i<=monthDays;i++){
+					if(i==currentDay)
+						str+=(i+"*\t");
+					else
+						str+=(i+"\t");
+					if((i+indent)%7==0)
+						str+="\n";
+				}
+				console.log(str);
+			},
+			isLeapYear:function(year){
+				return ( ( year % 4 == 0 ) && ( year % 100 != 0 ) ) || ( year % 400 == 0 );
+			},
+			daysInMonth:function(year,month){
+				// -1? It's December if considering January - 1!
+				if ( month == -1 || month == 0 || month == 2 || month == 4 || month == 6 || month == 7 || month == 9 || month == 11 ) {
+					return 31;
+				}
+				else if ( month == 3 || month == 5 || month == 8 || month == 10 ) {
+					return 30;
+				}
+				else if ( month == 1 ) {
+					return 28 + this.isLeapYear( year );
+				}
+			}
+		});
+		
+		var element = React.createElement(Calendar, {year:2015,month:4});
+		ReactDOM.render(element,document.getElementById("app"));
+	</script>
+
+</body>
+</html>

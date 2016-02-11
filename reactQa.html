@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello React!</title>
+  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <style type="text/css">
+    .media-left .btn{
+      margin-bottom: 10px;
+      line-height: 1;
+      font-size:80%;
+      padding:2px 12px;
+    }
+   
+  </style>
+</head>
+<body>
+  
+  <div id="app" class="container"></div>
+  <script type="text/javascript" src="bower_components/react/react.js"></script>
+  <script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+  <script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+  <script type="text/javascript" src="bower_components/lodash/lodash.min.js"></script>
+  <script type="text/babel">
+
+      var QuestionApp = React.createClass({
+        getInitialState:function(){
+          return {
+            showForm:false,
+            newQuestion:null
+          }
+        },
+        render: function() {
+          return (
+            <div>
+              <QuestionHeader toggleForm={this.toggleForm}/>
+              <QuestionForm showForm={this.state.showForm} toggleForm={this.toggleForm} addNewQuestion={this.addNewQuestion}/>
+              <hr/>
+              <QuestionList newQuestion={this.state.newQuestion}/>
+            </div>
+          );
+        },
+        toggleForm:function(e){
+          this.setState({showForm:!this.state.showForm});
+        },
+        addNewQuestion:function(newQuestion){
+          this.setState({newQuestion:newQuestion});
+        }
+
+      });
+
+      var QuestionHeader=React.createClass({
+        render:function(){
+          return (
+            <div className="jumbotron">
+              <h1 className="text-center">Question & Answer</h1> 
+              <button className="btn btn-success pull-right" onClick={this.props.toggleForm}>Add Question</button>
+            </div>
+          );
+        }
+      });
+
+      var QuestionForm=React.createClass({
+        render:function(){
+          var showFormStyle={display:this.props.showForm?"block":"none"};
+          return (
+            <form style={showFormStyle} onSubmit={this.submitHandler} onReset={this.resetHandler}>
+              <div className="form-group">
+                <label>Question</label>
+                <input type="text" className="form-control" placeholder="Enter your question" ref="quesTitleInput" />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea className="form-control" placeholder="Question Description" rows="3" ref="quesDescInput"></textarea>
+              </div>
+              <div className="form-group text-right">
+                <button className="btn btn-default" type="reset">Cancel</button> &nbsp; 
+                <button className="btn btn-success" type="submit">Submit</button>
+              </div>
+            </form>
+          );
+        },
+        submitHandler:function(e){
+          e.preventDefault();
+          var newQuestion={
+            title:ReactDOM.findDOMNode(this.refs.quesTitleInput).value,
+            description:ReactDOM.findDOMNode(this.refs.quesDescInput).value,
+            voteCount:0
+          };
+          this.props.addNewQuestion(newQuestion);
+          e.target.reset();
+        },
+        resetHandler:function(e){
+          this.props.toggleForm();
+        }
+
+      });
+
+      var QuestionList=React.createClass({
+        getInitialState:function(){
+          var questions=[
+            {
+              id:1,
+              title:"Why do I have to complete a CAPTCHA?",
+              description:"Completing the CAPTCHA proves you are a human and gives you temporary access to the web property.",
+              voteCount:22
+            },
+            {
+              id:2,
+              title:"What can I do to prevent this in the future?",
+              description:"If you are on a personal connection, like at home, you can run an anti-virus scan on your device to make sure it is not infected with malware.",
+              voteCount:10
+            }
+          ];
+          return {questions};
+        },
+        componentWillReceiveProps:function(newProps){
+            if(newProps.newQuestion){
+              var newQuestion=newProps.newQuestion;
+              if(!newQuestion.id){
+                 newQuestion.id=this.state.questions.length+1;
+                 this.state.questions.push(newQuestion);
+                 this.forceUpdate();
+              }
+            }
+        },
+        render:function(){
+          this.sortQuestions();
+          var self=this;
+          var items= this.state.questions.map(function(question){
+             return self.renderItem(question)
+           });
+          return <div>{items}</div>
+        },
+        renderItem:function(question){
+          return (
+            <div className="media" key={question.id}>
+              <div className="media-left">
+                 <button className="btn btn-default" 
+                    onClick={this.voteUpdate.bind(this,question,1)}>
+                  <span className="glyphicon glyphicon-chevron-up"></span>
+                  <div>{question.voteCount}</div>
+                </button>
+                <button className="btn btn-default" 
+                    onClick={this.voteUpdate.bind(this,question,-1)}>
+                  <span className="glyphicon glyphicon-chevron-down"></span>
+                </button>
+              </div>
+              <div className="media-body">
+                <h4 className="media-heading">{question.title}</h4>
+                <p>{question.description}</p>
+              </div>
+            </div>
+          );
+        },
+
+        voteUpdate:function(question,addition){
+          //console.log(arguments);
+          question.voteCount=question.voteCount+addition;
+          this.forceUpdate();
+          // var index=_.findIndex(this.state.questions,function(item){
+          //   return item.id===questionId;
+          // });
+          // if(index){
+          //   this.state.questions[index].voteCount+=addition;
+          //   //this.forceUpdate();
+          // }
+        },
+        sortQuestions:function(){
+          this.state.questions.sort(function(a,b){
+            return b.voteCount-a.voteCount;
+          });
+        }
+
+      });
+
+      ReactDOM.render(
+        <QuestionApp />,
+        document.getElementById('app')
+      );
+    
+  </script>
+</body>
+</html>

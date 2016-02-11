@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+	<fieldset>
+		<legend><h3>Eg1: Render JSX</h3></legend>
+		<div id="example1"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg2: Use Javascript in JSX</h3></legend>
+		<div id="example2"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg3: Use array in JSX</h3></legend>
+		<div id="example3"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg4: Define a component</h3></legend>
+		<div id="example4"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg5: this.props.children</h3></legend>
+		<div id="example5"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg6: PropTypes</h3></legend>
+		<div id="example6"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg7: getDefaultProps()</h3></legend>
+		<div id="example7"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg8: Finding a DOM node (refs) </h3></legend>
+		<div id="example8"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg9: this.state + event </h3></legend>
+		<div id="example9"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg10: Form + event </h3></legend>
+		<div id="example10"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg11: Component Lifecycle</h3></legend>
+		<div id="example11"></div>
+	</fieldset>
+	<br/>
+
+	<fieldset>
+		<legend><h3>Eg12: Ajax (use jquery) </h3></legend>
+		<div id="example12"></div>
+	</fieldset>
+	<br/>
+
+	
+	<script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
+	
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/babel/browser.min.js"></script>
+	<!-- <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script> -->
+	<script type="text/babel">
+
+		//eg1: Render JSX
+		ReactDOM.render(
+		  <h1>Hello, world!</h1>,
+		  document.getElementById('example1')
+		);
+
+		//eg2: Use Javascript in JSX
+		var names = ['Alice', 'Emily', 'Kate'];
+		ReactDOM.render(
+		  <div>
+		  {
+		    names.map(function (name,i) {
+		      return <div key={"a-"+i}>Hello, {name}!</div>
+		    })
+		  }
+		  </div>,
+		  document.getElementById('example2')
+		);
+
+		//eg3: Use array in JSX
+		var arr = [
+		  <h1 key="k-1">Hello world!</h1>,
+		  <h2 key="k-2">React is awesome</h2>,
+		];
+		ReactDOM.render(
+		  <div>{arr}</div>,
+		  document.getElementById('example3')
+		);
+
+		//eg4: Define a component
+		var HelloMessage = React.createClass({
+		  render: function() {
+		    return <h1>Hello {this.props.name}</h1>;
+		  }
+		});
+
+		ReactDOM.render(
+		  <HelloMessage name="John" />,
+		  document.getElementById('example4')
+		);
+
+		//eg5: this.props.children
+		var NotesList = React.createClass({
+		  render: function() {
+		    return (
+		      <ol>
+		      {
+		        this.props.children.map(function (child,i) {return <li key={'p-'+i}>{child}</li>})
+		      }
+		      </ol>
+		    );
+		  }
+		});
+
+		ReactDOM.render(
+		  <NotesList>
+		    <span>hello</span>
+		    <span>world</span>
+		  </NotesList>,
+		  document.getElementById('example5')
+		  );
+
+		//eg6: PropTypes
+		var MyTitle = React.createClass({
+		  propTypes: {
+		    title: React.PropTypes.string.isRequired,
+		  },
+		  render: function() {
+		     return <h1> {this.props.title} </h1>;
+		   }
+		});
+		
+		var data = "123";
+		ReactDOM.render(
+		  <MyTitle title={data} />,
+		  document.getElementById('example6')
+		);
+
+		//eg7: Use getDefaultProps()
+		var MyTitle2 = React.createClass({
+		  getDefaultProps : function () {
+		    return {
+		      title : 'Hello World'
+		    };
+		  },
+		  render: function() {
+		     return <h1> {this.props.title} </h1>;
+		   }
+		});
+
+		ReactDOM.render(
+		  <MyTitle2 />,
+		  document.getElementById('example7')
+		);
+
+		//eg8: Finding a DOM node  (refs)
+		var MyComponent = React.createClass({
+		  handleClick: function() {
+		    ReactDOM.findDOMNode(this.refs.myTextInput).focus();
+		  },
+		  render: function() {
+		    return (
+		      <div>
+		        <input type="text" ref="myTextInput" />
+		        <input type="button" value="Focus the text input" onClick={this.handleClick} />
+		      </div>
+		    );
+		  }
+		});
+
+		ReactDOM.render(
+		  <MyComponent />,
+		  document.getElementById('example8')
+		);
+
+		//eg9: this.state & event
+		var LikeButton = React.createClass({
+		  getInitialState: function() {
+		    return {liked: false};
+		  },
+		  handleClick: function(event) {
+		    this.setState({liked: !this.state.liked});
+		  },
+		  render: function() {
+		    var text = this.state.liked ? 'like' : 'haven\'t liked';
+		    return (
+		      <p onClick={this.handleClick}>
+		        You {text} this. Click to toggle.
+		      </p>
+		    );
+		  }
+		});
+
+		ReactDOM.render(
+		  <LikeButton />,
+		  document.getElementById('example9')
+		);
+
+		//eg10: Form + event
+		var Input = React.createClass({
+		  getInitialState: function() {
+		    return {value: 'Hello!'};
+		  },
+		  handleChange: function(event) {
+		    this.setState({value: event.target.value});
+		  },
+		  render: function () {
+		    var value = this.state.value;
+		    return (
+		      <div>
+		        <input type="text" value={value} onChange={this.handleChange} />
+		        <p>{value}</p>
+		      </div>
+		    );
+		  }
+		});
+		ReactDOM.render(<Input/>, document.getElementById('example10'));
+
+		//eg11: Component Lifecycle
+		var Hello = React.createClass({
+		  getInitialState: function () {
+		    return {opacity: 1.0};
+		  },
+		  componentDidMount: function () {
+		    this.timer = setInterval(function () {
+		      var opacity = this.state.opacity;
+		      opacity -= .05;
+		      if (opacity < 0.1) {
+		        opacity = 1.0;
+		      }
+		      this.setState({
+		        opacity: opacity
+		      });
+		    }.bind(this), 100);
+		  },
+		  render: function () {
+		    return (
+		      <div style={{opacity: this.state.opacity}}>
+		        Hello {this.props.name}
+		      </div>
+		    );
+		  }
+		});
+
+		ReactDOM.render(
+		  <Hello name="world"/>,
+		  document.getElementById('example11')
+		);
+
+		//eg12: Ajax
+		var UserGist = React.createClass({
+		  getInitialState: function() {
+		    return {
+		      username: '',
+		      lastGistUrl: ''
+		    };
+		  },
+
+		  componentDidMount: function() {
+		    $.get(this.props.source, function(result) {
+		      var lastGist = result[0];
+		      if (this.isMounted()) {
+		        this.setState({
+		          username: lastGist.owner.login,
+		          lastGistUrl: lastGist.html_url
+		        });
+		      }
+		    }.bind(this));
+		  },
+
+		  render: function() {
+		    return (
+		      <div>
+		        {this.state.username} is last gist is 
+		        <a href={this.state.lastGistUrl}>here</a>.
+		      </div>
+		    );
+		  }
+		});
+
+		ReactDOM.render(
+		  <UserGist source="https://api.github.com/users/octocat/gists" />,
+		  document.getElementById('example12')
+		);
+
+	</script>
+</body>
+</html>

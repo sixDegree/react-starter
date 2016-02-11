@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello React!</title>
+</head>
+<body>
+  
+  <div id="app"></div>
+  <script type="text/javascript" src="bower_components/react/react.js"></script>
+  <script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+  <script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+  <script type="text/babel">
+
+    /*
+    initial:
+    -> Min getDefaultProps -> getDefaultProps       (Merge result -> can't set same key)
+    -> Min getInitialState  -> getInitialState      (Merge result -> can't set same key)
+    -> Min componentWillMount -> componentWillMount
+    -> render
+    -> Min componentDidMount -> componentDidMount
+    -> RenderFinished
+
+    note: 
+      shouldComponentUpdate(nextProps,nextStates) & render()
+      -- in mixin or component (only in one place)
+
+    update (eg: addHandler):
+    -> shouldComponentUpdate(nextProps,nextStates)
+    -> Mixin componentWillUpdate(nextProps,nextStates) -> componentWillUpdate(nextProps,nextStates)
+    -> render
+    -> Min componentDidUpdate(prevProps,prevStates) -> componentDidUpdate(prevProps,prevStates) 
+
+    */
+
+    var SetIntervalMixin = {
+      startInterval: function() {
+        this.stopInterval();
+        this.timer=setInterval.apply(null, arguments);
+      },
+      stopInterval:function(){
+        clearInterval(this.timer);
+      },
+      componentWillUnmount: function() {
+        this.stopInterval();
+      }
+    };
+
+      var TickTock = React.createClass({
+        mixins: [SetIntervalMixin], // Use the mixin
+        getInitialState: function() {
+          return {seconds: 0};
+        },
+        componentDidMount: function() {
+          this.startHandler();
+        },
+
+        tick: function() {
+          this.setState({seconds: this.state.seconds + 1});
+        },
+        startHandler:function(){
+          console.log("start timer");
+          this.startInterval(this.tick, 1000);  // Call a method on the mixin
+        },
+        stopHandler:function(){
+           console.log("stop timer");
+          this.stopInterval();
+        },
+        killMeHandler:function(){
+          console.log("killMeHandler");
+          ReactDOM.unmountComponentAtNode(document.getElementById("app"));
+        },
+        render: function() {
+          return (
+            <div>
+              <p>React has been running for {this.state.seconds} seconds. </p>
+              <button onClick={this.stopHandler}>Stop</button> <button onClick={this.startHandler}>start</button> <button onClick={this.killMeHandler}>Kill Me</button>
+            </div>
+            
+          );
+        }
+      });
+
+      ReactDOM.render(
+        <TickTock />,
+        document.getElementById('app')
+      );
+    
+  </script>
+</body>
+</html>

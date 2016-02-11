@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+	
+	<div id="app"></div>
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+
+		/*
+		initial:
+		-> Min getDefaultProps -> getDefaultProps  			(Merge result -> can't set same key)
+		-> Min getInitialState	-> getInitialState 			(Merge result -> can't set same key)
+		-> Min componentWillMount -> componentWillMount
+		-> render
+		-> Min componentDidMount -> componentDidMount
+		-> RenderFinished
+
+		note: 
+			shouldComponentUpdate(nextProps,nextStates) & render()
+			-- in mixin or component (only in one place)
+
+		update (eg: addHandler):
+		-> shouldComponentUpdate(nextProps,nextStates)
+		-> Mixin componentWillUpdate(nextProps,nextStates) -> componentWillUpdate(nextProps,nextStates)
+		-> render
+		-> Min componentDidUpdate(prevProps,prevStates) -> componentDidUpdate(prevProps,prevStates) 
+
+		*/
+
+		var StateRecordMixin={
+			componentWillMount:function(){
+				console.log("Mixin componentWillMount");
+				this.oldRecords=[];
+			},
+			componentWillUpdate:function(nextProps,nextState){
+				console.log("Mixin componentWillUpdate: --current:"+this.state.count+",next:"+nextState.count);
+			},
+			componentDidUpdate:function(prevProps,prevState){
+				console.log("Mixin componentDidUpdate --current:"+this.state.count+",prev:"+prevState.count);
+				this.oldRecords.push(this.state);
+			},
+			getPreviousRecord:function(){
+				console.log("get previous record");
+				if(this.oldRecords.length>0)
+					return this.oldRecords[this.oldRecords.length-1];
+				else
+					return {};
+			},
+			alertRecord:function(){
+				alert("Hello,current count is "+this.state.count
+					+" ( limitCount is "+this.props.limitCount
+					+", Previous count is "+this.getPreviousRecord().count+")");
+			}
+		};
+
+		var MessageBox=React.createClass({
+			mixins:[StateRecordMixin],
+			getDefaultProps:function(){
+				console.log("getDefaultProps");
+				return {limitCount:5};
+			},
+			getInitialState:function(){
+				console.log("getInitialState");
+				return {count:0};
+			},
+		
+			shouldComponentUpdate:function(nextProps,nextState){
+				console.log("shouldComponentUpdate("+nextProps.limitCount+","+nextState.count+")");
+				if(nextState.count>nextProps.limitCount)
+					return false;
+				return true;
+			},
+			
+			addHandler:function(){
+				console.log("addHandler:");
+				this.setState({count:this.state.count+1});
+			},
+			render:function(){
+				console.log("render");
+				return (
+					<div>
+						<p><button onClick={this.alertRecord}>AlertRecord</button></p>
+						<p>My Count: {this.state.count}</p>
+						<p><button onClick={this.addHandler}>Add</button></p>
+						<p>Previous Count is : {this.getPreviousRecord().count}</p>
+					</div>
+				)
+			}
+		});
+
+		ReactDOM.render(<MessageBox limitCount="5"/>,document.getElementById("app"),function(){
+			console.log("Render Finished!");
+		});
+		
+	</script>
+</body>
+</html>

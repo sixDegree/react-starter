@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+	
+	<div id="example1"></div>
+	<hr/>
+
+	<div id="app"></div>
+	<script type="text/javascript" src="bower_components/react/react-with-addons.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+
+		//Two-Way Binding -- ReactLink
+
+		//1. ReactLink Without LinkedStateMixin
+		// ReactLink: value + requestChange
+		var WithoutMixin  = React.createClass({
+			  getInitialState: function() {
+			    return {inputValue:""};
+			  },
+			  requestChange: function(newValue) {
+			    this.setState({inputValue: newValue});
+			  },
+			  render: function() {
+			    var myReactLink = {
+			      value: this.state.inputValue,
+			      requestChange: this.requestChange
+			    };
+			   return (
+			   		<div>
+			   			<input type="text" valueLink={myReactLink} />
+			   			<p>Result: {this.state.inputValue}</p>
+			   		</div>
+			   	);
+			  }
+		});
+		ReactDOM.render(<WithoutMixin />,document.getElementById("example1"),function(){
+			console.log("Render Finished!");
+		});
+
+		//2. ReactLink with LinkedStateMixin 
+		var EasyForm=React.createClass({
+			mixins:[React.addons.LinkedStateMixin],
+			getInitialState:function(){
+				return {
+					inputValue:"",
+					isRemember:true
+				};
+			},
+			render:function(){
+				return (
+					<div>
+						<input type="text"  valueLink={this.linkState("inputValue")} />
+						<br/>
+						<input type="checkbox" name="goodCheckbox" checkedLink={this.linkState("isRemember")} /> Remember Me
+						<h3>Result:</h3>
+						<ul>
+							<li>InputValue: {this.state.inputValue}</li>
+							<li>IsRememberMe: {this.state.isRemember.toString()}</li>
+						</ul>
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(<EasyForm/>,document.getElementById("app"),function(){
+			console.log("Render Finished!");
+		});
+		
+	</script>
+</body>
+</html>

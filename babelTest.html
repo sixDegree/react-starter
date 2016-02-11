@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello React!</title>
+</head>
+<body>
+  
+  <div id="app"></div>
+
+  <script type="text/javascript" src="bower_components/react/react.js"></script>
+  <script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+
+  <!--1 : don't use require(xxx)
+   fail to load the file unless it's served via HTTP. 
+    http-server
+   -->
+  <!-- <script type="text/javascript" src="bower_components/babel/browser.min.js"></script>
+  <script type="text/babel" src="babelTest-1.jsx"></script> -->
+
+  <!--2 : don't use require(xxx)
+	npm install babel-cli -g
+	npm install babel-preset-react --save-dev
+	babel --presets react babelTest-1.jsx -o babelTest-1.js
+  -->
+  <!-- <script type="text/javascript" src="babelTest-1.js"></script> -->
+
+  <!-- 3 : can use require(xxx)
+	npm install browserify -g
+	npm install babelify@6.4
+	browserify babelTest-1.jsx -t babelify -o babelTest-1.js --extension .jsx 
+  -->
+  <!-- <script type="text/javascript" src="babelTest-1.js"></script>-->
+
+  <!-- 4 : can use require(xxx)
+	browserify babelTest-2.jsx -t babelify -o babelTest-2.js --extension .jsx 
+  -->
+  <script type="text/javascript" src="babelTest-2.js"></script>
+
+</body>
+</html>

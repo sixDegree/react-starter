@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+
+	<button id="upBtn">Update titleMessage</button>
+	<div id="app"></div>
+	
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+
+		var MessageBox=React.createClass({
+			getInitialState:function(){
+				return {
+					isVisible:true,
+					titleMessage:"Hello",
+					clickCount:0,
+					repeatMsgs:["Hello,React!","Long Time No See","Good Afternoon"]
+				};
+			},
+			clickMe:function(){
+				//alert(" Clicked !");
+				this.setState({clickCount:this.state.clickCount+1});
+			},
+			showOrHideHandler:function(){
+				//this.setState({isVisible:!this.state.isVisible});
+				this.state.isVisible=!this.state.isVisible;
+				this.forceUpdate(function(){
+					console.log("Force Updated");
+				});
+			},
+			render:function(){
+				var displayStyle={display:this.state.isVisible?"block":"none"};
+				return (
+					<div>
+						<h3>This is MessageBox ({this.state.titleMessage}) for {this.props.to} | <a href="#" onClick={this.clickMe}> Click Me!</a> </h3>
+						<p>Click Count : {this.state.clickCount}</p>
+						<hr/>
+						<ConfirmBox msgTitle={this.state.titleMessage} msgClickCount={this.state.clickCount}/>
+						<hr/>
+						<div><a href="#" onClick={this.showOrHideHandler}> Show/Hide </a></div>
+						<div style={displayStyle}>
+							<RepeatBox repeatMsgs={this.state.repeatMsgs}/>
+							<RepeatBox/>
+						</div>
+						
+					</div>
+					
+				);
+			}
+		});
+
+		var ConfirmBox=React.createClass({
+			getInitialState:function(){
+				return {
+					confirmResult:"None"
+				};
+			},
+			confirmClick:function(){
+				var result=confirm("Do you miss me?");
+				if(result)
+					this.setState({confirmResult:"Yes"});
+				else
+					this.setState({confirmResult:"No"});
+			},
+			render:function(){
+				return (
+					<div>
+						<p>Get MessageBox Title : {this.props.msgTitle} </p>
+						<p>Get MessageBox Click Count : {this.props.msgClickCount}</p>
+						<a href="#" onClick={this.confirmClick}> Confirm </a>
+						<p>Confirm Result : {this.state.confirmResult}</p>
+					</div>
+				);
+			}
+		});
+
+		var RepeatBox=React.createClass({
+			propTypes:{
+				repeatMsgs:React.PropTypes.array.isRequired
+			},
+			getDefaultProps:function(){
+				return {
+					repeatMsgs:["No Message!"]
+				}
+			},
+			render:function(){
+				var arr=[];
+				// for(var i=0;i<5;i++)
+				// 	arr.push(<li key={'rep-'+i}> Repeat {i+1} </li>);
+				this.props.repeatMsgs.forEach(function(msg,i){
+					arr.push(<li key={'rep-'+i}> {i+1} : {msg} </li>);
+				});
+				return (
+					<div>
+						<h3>Repeat Box</h3>
+						<ul>{arr}</ul>
+					</div>
+				);
+			}
+		});
+
+
+
+
+
+		var messageBoxComponent=ReactDOM.render(<MessageBox to="Tom"/>,document.getElementById("app"),function(){
+			console.log("Render Finished!");
+		});
+		console.log(messageBoxComponent);
+
+		document.getElementById("upBtn").onclick=function(){
+			// messageBoxComponent.state.titleMessage="123";
+			// messageBoxComponent.forceUpdate(function(){
+			// 	console.log("Do Force Udpate");
+			// });
+			messageBoxComponent.setState({titleMessage:"123"});
+		}
+		
+	</script>
+</body>
+</html>

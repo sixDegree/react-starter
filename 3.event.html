@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+	<div id="app"></div>
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+		//SyntheticEvent ：React对Event进行了封装
+		//Form Events: onChange onInput onSubmit
+		var EditForm=React.createClass({
+			getInitialState:function(){
+				return {
+					inputValue:"Input Value...",
+					radioValue:"A",
+					checkboxValue:[],
+					selectValue:"CC",
+					textareaValue:"Textarea Value..."
+				};
+			},
+			submitHandler:function(e){
+				// React对event进行了优化，若未使用则e填充值都为null
+				console.log(e);		
+				console.log(e.target);
+				console.log(e.type);
+				console.log(this.state);
+				e.preventDefault();
+			},
+			resetHandler:function(e){
+				console.log("Reset");
+				//this.forceUpdate();
+			},
+			inputHandler:function(e){
+				this.setState({inputValue:e.target.value});
+			},
+			radioHandler:function(e){
+				this.setState({radioValue:e.target.value});
+			},
+			checkboxHandler:function(e){
+				console.log(e.target.name+"["+e.target.value+"]:"+e.target.checked);
+				var checkboxValue=this.state.checkboxValue;
+				var index=checkboxValue.indexOf(e.target.value);
+				if(e.target.checked)
+					checkboxValue.push(e.target.value);
+				else
+					checkboxValue.splice(index,1);
+				this.setState({checkboxValue:checkboxValue});
+			},
+			selectHandler:function(e){
+				this.setState({selectValue:e.target.value});
+			},
+			textareaHandler:function(e){
+				this.setState({textareaValue:e.target.value});
+			},
+			render:function(){
+				return (
+					<div>
+						<form onSubmit={this.submitHandler} onReset={this.resetHandler}>
+							<input type="text" value={this.state.inputValue} onChange={this.inputHandler}/>
+							<br/>
+							<input type="radio" name="goodRadio" value="A" defaultChecked onChange={this.radioHandler}/>A
+							<input type="radio" name="goodRadio" value="B" onChange={this.radioHandler}/>B
+							<input type="radio" name="goodRadio" value="C" onChange={this.radioHandler}/>C
+							<br/>
+							<input type="checkbox" name="goodCheckbox" value="1" onChange={this.checkboxHandler}/>1
+							<input type="checkbox" name="goodCheckbox" value="2" onChange={this.checkboxHandler}/>2
+							<input type="checkbox" name="goodCheckbox" value="3" onChange={this.checkboxHandler}/>3
+							<br/>
+							<select name="goodSelect" value={this.state.selectValue} onChange={this.selectHandler}>
+								<option value="AA">AA</option>
+								<option value="BB">BB</option>
+								<option value="CC">CC</option>
+							</select>
+							<br/>
+							<textarea cols="30" rows="10" value={this.state.textareaValue} onChange={this.textareaHandler}></textarea>
+							<br/>
+							<button type="reset" >Reset</button> <button type="submit">Submit</button>
+						</form>
+						<hr/>
+						<h3>Result:</h3>
+						<ul>
+							<li>InputValue: {this.state.inputValue} </li>
+							<li>RadioValue: {this.state.radioValue} </li>
+							<li>CheckboxValue: {this.state.checkboxValue} </li>
+							<li>TextareaValue: {this.state.textareaValue} </li>
+							<li>SelectValue : {this.state.selectValue} </li>
+						</ul>
+					</div>
+				);
+			}
+		});
+
+		ReactDOM.render(<EditForm/>,document.getElementById("app"),function(){
+			console.log("Render Finished!");
+		});
+		
+	</script>
+</body>
+</html>

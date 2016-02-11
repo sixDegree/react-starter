@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Hello React!</title>
+</head>
+<body>
+	
+	<div id="app"></div>
+	<script type="text/javascript" src="bower_components/react/react.js"></script>
+	<script type="text/javascript" src="bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="bower_components/react/browser.min.js"></script>
+	<script type="text/babel">
+
+		/*Component Lifecycle :
+		Mounting :
+				void componentWillMount()
+				void componentDidMount()
+		Updating : 
+				void componentWillReceiveProps (object nextProps)
+				boolean shouldComponentUpdate(object nextProps, object nextState)
+				void componentWillUpdate( object nextProps, object nextState)
+				void componentDidUpdate(object prevProps, object prevState)
+		UnMount : 
+				void componentWillUnmount()*/
+
+		/*
+		initial
+		-> getDefaultProps 
+		-> getInitialState 
+		-> componentWillMount 
+		-> render 
+			-> sub component
+		-> componentDidmount 
+		-> RenderFinished!
+
+		update (eg: addHandler)
+		-> shouldComponentUpdate(nextProps,nextState) -- return true(go to next)/false(stop here)
+		-> componentWillUpdate(nextProps,nextState) 
+		-> render
+			-> Sub componentWillReceiveProps(nextProps)
+			-> Sub shouldComponentUpdate(nextProps,nextState)
+			-> Sub componentWillUpdate(nextProps,nextState)
+			-> Sub componentDidUpdate(prevProps,prevState)
+		-> componentDidUpdate(prevProps,prevState)
+		*/
+
+		var MessageBox=React.createClass({
+
+			getDefaultProps:function(){
+				console.log("getDefaultProps");
+				return {limitCount:10};
+			},
+			getInitialState:function(){
+				console.log("getInitialState");
+				return {count:0};
+			},
+
+			componentWillMount:function(){
+				console.log("componentWillMount");
+			},
+			componentDidMount:function(){
+				console.log("componentDidMount");
+			},
+
+			/*componentWillReceiveProps:function(nextProps){
+				console.log("componentWillReceiveProps("+nextProps.count+")");
+				this.setState({count:nextProps});
+			},*/
+			shouldComponentUpdate:function(nextProps,nextState){
+				console.log("shouldComponentUpdate("+nextProps.limitCount+","+nextState.count+")");
+				if(nextState.count>nextProps.limitCount)
+					return false;
+				return true;
+			},
+			componentWillUpdate:function(nextProps,nextState){
+				console.log("componentWillUpdate("+nextProps.limitCount+","+nextState.count+")");
+			},
+			componentDidUpdate:function(prevProps,prevState){
+				console.log("componentDidUpdate("+prevProps.limitCount+","+prevState.count+")");
+			},
+			componentWillUnmount:function(){
+				console.log("componentWillUnmount");
+			},
+
+			addHandler:function(){
+				console.log("addHandler:");
+				this.setState({count:this.state.count+1});
+			},
+			subHandler:function(){
+				console.log("subHandler:");
+				this.setState({count:this.state.count-1});
+			},
+			killMeHandler:function(){
+				console.log("killMeHandler:");
+				ReactDOM.unmountComponentAtNode(document.getElementById("app"));
+			},
+			resetHandler:function(newCount){
+				this.setState({count:newCount});
+			},
+			render:function(){
+				console.log("render!");
+				return (
+					<div>
+						<h3>Count: {this.state.count}</h3>
+						<button onClick={this.addHandler}> Add </button> <button onClick={this.subHandler}> Sub </button> <button onClick={this.killMeHandler}>Kill Me</button>
+						
+						<h4>Sub MessageBox</h4>
+						{/*<SubMessageBox count="1" resetHandler={this.resetHandler}/>*/}
+						<SubMessageBox count={this.state.count} resetHandler={this.resetHandler}/>
+					</div>
+				);
+			}
+		});
+
+		var SubMessageBox=React.createClass({
+			getDefaultProps:function(){
+				console.log("Sub getDefaultProps");
+				return {count:0};
+			},
+			getInitialState:function(){
+				console.log("Sub getInitialState");
+				return {doubleCount:0};
+			},
+
+			componentWillMount:function(){
+				console.log("Sub componentWillMount");
+			},
+			componentDidMount:function(){
+				console.log("Sub componentDidMount");
+			},
+
+			componentWillReceiveProps:function(nextProps){
+				console.log("Sub componentWillReceiveProps("+nextProps.count+")");
+				this.state.doubleCount=nextProps.count*2;
+				//this.setState({doubleCount:nextProps*2});
+			},
+			shouldComponentUpdate:function(nextProps,nextState){
+				console.log("Sub shouldComponentUpdate("+nextProps.count+","+nextState.doubleCount+")");
+				return true;
+			},
+			componentWillUpdate:function(nextProps,nextState){
+				console.log("Sub componentWillUpdate("+nextProps.count+","+nextState.doubleCount+")");
+			},
+			componentDidUpdate:function(prevProps,prevState){
+				console.log("Sub componentDidUpdate("+prevProps.count+","+prevState.doubleCount+")");
+			},
+			componentWillUnmount:function(){
+				console.log("Sub componentWillUnmount");
+			},
+
+			resetHandler:function(){
+				console.log("Sub resetHandler:")
+				var newCount=ReactDOM.findDOMNode(this.refs.inputCount).value;
+				this.props.resetHandler(Number(newCount));
+			},
+			render:function(){
+				return (
+					<div>
+						<p>My Count: {this.props.count}</p>
+						<p>My Double Count: {this.state.doubleCount}</p>
+						<p>Set Count to: <input type="text" ref="inputCount"/> <button onClick={this.resetHandler}>Reset</button></p>
+					</div>
+				)
+			}
+		});
+
+		ReactDOM.render(<MessageBox limitCount="5"/>,document.getElementById("app"),function(){
+			console.log("Render Finished!");
+		});
+		
+	</script>
+</body>
+</html>
